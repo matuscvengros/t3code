@@ -579,10 +579,12 @@ const CHAT_MARKDOWN_REHYPE_PLUGINS = [
   rehypePreserveImageSourceMeta,
   [rehypeSanitize, CHAT_MARKDOWN_SANITIZE_SCHEMA],
   // Sanitize authored HTML before KaTeX generates its own HTML and MathML.
-  rehypeKatex,
+  [rehypeKatex, { trust: false }],
 ] satisfies NonNullable<ReactMarkdownOptions["rehypePlugins"]>;
 
-const CHAT_MARKDOWN_LITERAL_REHYPE_PLUGINS = [rehypeKatex];
+const CHAT_MARKDOWN_LITERAL_REHYPE_PLUGINS = [
+  [rehypeKatex, { trust: false }],
+] satisfies NonNullable<ReactMarkdownOptions["rehypePlugins"]>;
 
 /** GitHub's own five alert kinds, in its colors: the glyph names the urgency, the title says it. */
 const GITHUB_ALERT_PRESENTATIONS: Record<
