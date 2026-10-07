@@ -199,6 +199,34 @@ $\href{javascript:alert(1)}{x}$`,
       expect(container.querySelector("script, [onerror], a[href^='javascript:']")).toBeNull();
     });
   });
+
+  it.each([true, false])(
+    "rejects math commands that create links, images or HTML with parseRawHtml=%s",
+    async (parseRawHtml) => {
+      await withMarkdown(async (container, render) => {
+        await render({
+          cwd: undefined,
+          parseRawHtml,
+          text: [
+            "$x^2$",
+            String.raw`$$\href{https://example.com/unsafe}{click}$$`,
+            String.raw`$$\href{javascript:alert(1)}{click}$$`,
+            String.raw`$$\includegraphics{https://example.com/unsafe.png}$$`,
+            String.raw`$$\htmlClass{math-injection}{x}$$`,
+            String.raw`$$\htmlId{math-injection}{x}$$`,
+            String.raw`$$\htmlStyle{background-image:url(https://example.com/unsafe)}{x}$$`,
+            String.raw`$$\htmlData{math-injection=value}{x}$$`,
+          ].join("\n\n"),
+        });
+        expect(container.querySelector("math msup")?.textContent).toBe("x2");
+        expect(
+          container.querySelector(
+            "a, img, .math-injection, #math-injection, [data-math-injection], [style*='example.com']",
+          ),
+        ).toBeNull();
+      });
+    },
+  );
 });
 
 describe("ChatMarkdown bare anchor placeholders", () => {
